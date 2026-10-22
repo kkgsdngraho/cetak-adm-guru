@@ -6,265 +6,7 @@
 <title>Cetak Administrasi Guru — DAPODIK Style</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
-/* ============ RESET ============ */
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background:#f0f2f5; display:flex; min-height:100vh; color:#1a2b3c; }
-
-/* ============ SIDEBAR ============ */
-.sidebar { width:260px; background:linear-gradient(180deg,#0b2a4a 0%,#123b5e 100%); color:#fff;
-  display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:1000;
-  overflow-y:auto; box-shadow:2px 0 12px rgba(0,0,0,.15); transition:transform .3s ease; }
-body.sidebar-hidden .sidebar { transform:translateX(-100%); box-shadow:none; }
-.sidebar-brand { display:flex; align-items:center; gap:12px; padding:24px 20px 20px;
-  border-bottom:1px solid rgba(255,255,255,.08); }
-.sidebar-brand .logo-icon { font-size:28px; color:#4fc3f7; }
-.sidebar-brand h2 { font-size:18px; font-weight:600; letter-spacing:.3px; }
-.sidebar-brand h2 span { color:#4fc3f7; }
-.sidebar-brand .sub { font-size:10px; text-transform:uppercase; letter-spacing:1.5px;
-  color:rgba(255,255,255,.5); margin-top:2px; }
-.sidebar-menu { padding:20px 12px; flex:1; }
-.sidebar-menu .menu-label { font-size:11px; text-transform:uppercase; letter-spacing:1px;
-  color:rgba(255,255,255,.3); padding:0 12px 8px; font-weight:600; }
-.sidebar-menu a { display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:10px;
-  color:rgba(255,255,255,.7); text-decoration:none; transition:all .2s; margin-bottom:2px;
-  font-size:14px; font-weight:500; position:relative; }
-.sidebar-menu a i { width:22px; font-size:16px; text-align:center; }
-.sidebar-menu a:hover { background:rgba(255,255,255,.08); color:#fff; }
-.sidebar-menu a.active { background:rgba(79,195,247,.18); color:#4fc3f7; box-shadow:inset 3px 0 0 #4fc3f7; }
-.sidebar-menu a.admin-only { display:none; }
-body.is-admin .sidebar-menu a.admin-only { display:flex; }
-.pending-badge { margin-left:auto; background:#e74c3c; color:#fff; font-size:10px;
-  font-weight:700; padding:2px 8px; border-radius:20px; line-height:1.4; }
-.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.06);
-  font-size:12px; color:rgba(255,255,255,.35); text-align:center; }
-
-/* ============ MAIN ============ */
-.main-content { margin-left:260px; flex:1; display:flex; flex-direction:column;
-  min-height:100vh; transition:margin-left .3s ease; }
-body.sidebar-hidden .main-content { margin-left:0; }
-
-/* ============ TOPBAR ============ */
-.topbar { background:#fff; padding:16px 32px; display:flex; align-items:center;
-  justify-content:space-between; border-bottom:1px solid #e9edf2; position:sticky;
-  top:0; z-index:500; flex-wrap:wrap; gap:12px; }
-.topbar-left { display:flex; align-items:center; gap:16px; }
-.hamburger { background:none; border:none; font-size:22px; color:#1a2b3c; cursor:pointer;
-  padding:4px; transition:.2s; }
-.hamburger:hover { color:#4fc3f7; }
-.page-title h1 { font-size:20px; font-weight:600; color:#1a2b3c; }
-.page-title p { font-size:13px; color:#7a8a9e; margin-top:2px; }
-.topbar-right { display:flex; align-items:center; gap:16px; }
-.user-profile { display:flex; align-items:center; gap:10px; padding:4px 12px 4px 4px; border-radius:30px; }
-.user-profile .avatar { width:36px; height:36px; border-radius:50%; background:#4fc3f7;
-  display:flex; align-items:center; justify-content:center; color:#fff; font-weight:600; font-size:15px;
-  text-transform:uppercase; }
-.user-profile .info { line-height:1.2; }
-.user-profile .info .name { font-size:13px; font-weight:600; color:#1a2b3c; }
-.user-profile .info .role { font-size:11px; color:#7a8a9e; }
-.logout-btn { background:#ffebee; color:#c62828; padding:9px 12px; border-radius:10px;
-  font-size:14px; border:none; cursor:pointer; transition:.2s; }
-.logout-btn:hover { background:#ffcdd2; }
-
-/* ============ PAGE ============ */
-.page-content { padding:28px 32px 40px; flex:1; }
-.page-panel { display:none; }
-.page-panel.active { display:block; }
-
-/* ============ CARDS ============ */
-.card-panel { background:#fff; border-radius:16px; border:1px solid #eef1f5;
-  box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; }
-.card-panel .card-header { padding:18px 24px; border-bottom:1px solid #f0f3f7;
-  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-.card-panel .card-header h3 { font-size:16px; font-weight:600; color:#1a2b3c;
-  display:flex; align-items:center; gap:8px; }
-.card-panel .card-header h3 i { color:#4fc3f7; }
-.card-panel .card-body { padding:20px 24px 24px; }
-.card-panel .card-body.no-pad { padding:0; }
-
-/* ============ STATS ============ */
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
-  gap:20px; margin-bottom:24px; }
-.stat-card { background:#fff; border-radius:16px; padding:20px 22px;
-  box-shadow:0 2px 8px rgba(0,0,0,.04); border:1px solid #eef1f5;
-  display:flex; align-items:center; gap:16px; transition:.25s; }
-.stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.06); }
-.stat-card .icon { width:52px; height:52px; border-radius:14px; display:flex;
-  align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
-.stat-card .icon.blue   { background:#e3f2fd; color:#1976d2; }
-.stat-card .icon.green  { background:#e8f5e9; color:#2e7d32; }
-.stat-card .icon.orange { background:#fff3e0; color:#e65100; }
-.stat-card .icon.purple { background:#f3e5f5; color:#6a1b9a; }
-.stat-card .info h3 { font-size:24px; font-weight:700; color:#1a2b3c; line-height:1.2; }
-.stat-card .info p  { font-size:13px; color:#7a8a9e; margin-top:2px; }
-
-/* ============ GRID ============ */
-.row-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-@media (max-width:1024px) { .row-grid-2 { grid-template-columns:1fr; } }
-
-/* ============ TABLE ============ */
-.table-wrap { overflow-x:auto; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-table thead tr { background:#f8fafc; }
-table th { text-align:left; padding:12px 14px; font-weight:600; color:#4a5a6e;
-  border-bottom:2px solid #e9edf2; font-size:12px; text-transform:uppercase;
-  letter-spacing:.3px; white-space:nowrap; }
-table td { padding:12px 14px; border-bottom:1px solid #f0f3f7; color:#1e2a3a; }
-table tbody tr:hover { background:#f8fafc; }
-.empty { text-align:center; color:#9aa9b9; padding:40px 20px; }
-
-/* ============ FORM ============ */
-label { display:block; font-weight:600; font-size:12px; color:#4a5a6e;
-  text-transform:uppercase; letter-spacing:.3px; margin-bottom:6px; }
-input[type="text"], input[type="password"], select { width:100%; padding:10px 14px; font-size:14px;
-  border:1px solid #e9edf2; border-radius:10px; background:#f8fafc;
-  transition:.2s; color:#1a2b3c; outline:none; font-family:inherit; }
-input[type="text"]:focus, input[type="password"]:focus, select:focus { border-color:#4fc3f7;
-  box-shadow:0 0 0 3px rgba(79,195,247,.15); background:#fff; }
-input[type="checkbox"] { width:16px; height:16px; cursor:pointer; accent-color:#1976d2; }
-.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-@media (max-width:768px) { .grid2, .grid3 { grid-template-columns:1fr; } }
-
-/* ============ TOGGLE PASSWORD ============ */
-.input-pass-wrap { position:relative; }
-.input-pass-wrap input { padding-right:44px; }
-.toggle-pass { position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  background:none; border:none; color:#7a8a9e; cursor:pointer; padding:6px;
-  border-radius:6px; font-size:14px; display:inline-flex; }
-.toggle-pass:hover { background:#e8edf2; color:#1976d2; }
-
-/* ============ BUTTONS ============ */
-button { padding:10px 18px; cursor:pointer; font-size:13px; border:none;
-  border-radius:10px; background:#1976d2; color:#fff; font-weight:600;
-  transition:.2s; display:inline-flex; align-items:center; gap:6px; font-family:inherit; }
-button:hover { background:#1565c0; transform:translateY(-1px); }
-button:disabled { background:#cfd8dc; cursor:not-allowed; transform:none; }
-button.secondary { background:#f5f7fa; color:#4a5a6e; border:1px solid #e9edf2; }
-button.secondary:hover { background:#e8edf2; }
-button.green { background:#2e7d32; }
-button.green:hover { background:#1b5e20; }
-button.danger { background:#c62828; }
-button.danger:hover { background:#b71c1c; }
-button.small { padding:6px 12px; font-size:12px; }
-
-/* ============ TOOLBAR ============ */
-.toolbar { display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
-.toolbar .status { font-size:12px; color:#7a8a9e; margin-left:auto; }
-
-/* ============ DROPZONE ============ */
-.dropzone { border:2px dashed #cfd8dc; border-radius:16px; padding:40px 20px;
-  text-align:center; color:#7a8a9e; cursor:pointer; transition:.2s;
-  background:#f8fafc; margin-top:14px; }
-.dropzone:hover, .dropzone.dragover { border-color:#4fc3f7; background:#e3f2fd; color:#1976d2; }
-.dropzone .big { font-size:44px; margin-bottom:10px; }
-.dropzone .hint { font-size:12px; margin-top:6px; opacity:.8; }
-
-/* ============ PROGRESS ============ */
-.progress { margin-top:12px; background:#eef1f5; border-radius:6px;
-  height:8px; overflow:hidden; display:none; }
-.progress.show { display:block; }
-.progress .bar { height:100%; background:linear-gradient(90deg,#4fc3f7,#29b6f6);
-  width:0%; transition:width .25s; }
-
-/* ============ LOG ============ */
-#log { background:#0b2a4a; color:#b8d4f0; border-radius:12px; padding:16px 18px;
-  white-space:pre-wrap; font-family:ui-monospace, SFMono-Regular, monospace;
-  font-size:12px; max-height:600px; overflow-y:auto; line-height:1.6; }
-
-/* ============ ALERTS ============ */
-.rpp-info { background:#e8f5e9; border-left:4px solid #2e7d32;
-  padding:14px 18px; border-radius:8px; font-size:13px; margin-top:14px; color:#1a2b3c; }
-.rpp-info.warning { background:#fff3e0; border-left-color:#e65100; }
-
-/* ============ QUOTA STRIP ============ */
-.quota-strip { background:linear-gradient(90deg,#e3f2fd,#f0f7ff);
-  border-left:4px solid #1976d2; padding:12px 16px; border-radius:8px;
-  margin-bottom:14px; font-size:13px; color:#1a2b3c;
-  display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-.quota-strip.danger { background:linear-gradient(90deg,#ffebee,#fff5f5);
-  border-left-color:#c62828; color:#b71c1c; }
-.quota-strip strong { font-weight:700; }
-.quota-strip small { color:#5a6a7e; font-size:11px; }
-
-/* ============ BADGE ============ */
-.badge { display:inline-block; padding:2px 10px; border-radius:20px;
-  background:#e3f2fd; color:#1976d2; font-size:11px; font-weight:600; }
-.badge.role-admin      { background:#f3e5f5; color:#6a1b9a; }
-.badge.role-pelanggan  { background:#e0f7fa; color:#00838f; }
-.badge.status-aktif    { background:#e8f5e9; color:#2e7d32; }
-.badge.status-nonaktif { background:#ffebee; color:#c62828; }
-.badge.status-pending  { background:#fff3e0; color:#e65100; }
-.badge.type-docx       { background:#e3f2fd; color:#1976d2; }
-.badge.type-xlsx       { background:#e8f5e9; color:#2e7d32; }
-
-/* ============ FILE ITEM ============ */
-.fileitem { padding:10px 16px; border-bottom:1px solid #f0f3f7; font-size:13px;
-  display:flex; justify-content:space-between; align-items:center; }
-.fileitem:last-child { border-bottom:none; }
-.fileitem .size { color:#7a8a9e; font-size:11px; }
-
-/* ============ INFO LIST ============ */
-.info-list { list-style:none; }
-.info-list li { display:flex; justify-content:space-between; padding:12px 0;
-  border-bottom:1px solid #f0f3f7; font-size:13px; align-items:center; gap:12px; }
-.info-list li:last-child { border-bottom:none; }
-.info-list li .label { color:#7a8a9e; }
-.info-list li .value { font-weight:500; color:#1a2b3c; text-align:right; }
-.action-link { font-size:13px; color:#4fc3f7; text-decoration:none;
-  font-weight:500; white-space:nowrap; }
-.action-link:hover { text-decoration:underline; }
-
-/* ============ LOGIN / REGISTER ============ */
-.login-overlay { display:none; position:fixed; inset:0;
-  background:linear-gradient(135deg, #0b2a4a 0%, #123b5e 100%);
-  z-index:9999; align-items:center; justify-content:center; padding:20px;
-  overflow-y:auto; }
-.login-overlay.show { display:flex; }
-.login-card { background:#fff; border-radius:20px; padding:40px 36px;
-  width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.3);
-  margin:auto; }
-.login-card.wide { max-width:560px; }
-.login-brand { text-align:center; margin-bottom:28px; }
-.login-brand i { font-size:44px; color:#4fc3f7; margin-bottom:12px; }
-.login-brand h2 { font-size:24px; color:#1a2b3c; font-weight:600; }
-.login-brand h2 span { color:#4fc3f7; }
-.login-brand p { font-size:12px; color:#7a8a9e; text-transform:uppercase;
-  letter-spacing:1.5px; margin-top:4px; }
-.login-form label { margin:16px 0 6px; }
-.login-form input { padding:12px 16px; font-size:14px; }
-.login-btn { width:100%; margin-top:24px; padding:12px; font-size:14px;
-  justify-content:center; }
-.login-error { color:#c62828; font-size:13px; margin-top:12px;
-  min-height:18px; text-align:center; }
-.login-hint { text-align:center; font-size:12px; color:#7a8a9e; margin-top:16px;
-  padding-top:16px; border-top:1px solid #f0f3f7; }
-.login-hint a { color:#1976d2; font-weight:600; text-decoration:none; }
-.login-hint a:hover { text-decoration:underline; }
-
-/* ============ MODAL ============ */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
-  z-index:9000; align-items:center; justify-content:center; padding:20px; }
-.modal-overlay.show { display:flex; }
-.modal-card { background:#fff; border-radius:16px; padding:28px;
-  width:100%; max-width:520px; box-shadow:0 20px 60px rgba(0,0,0,.3);
-  max-height:90vh; overflow-y:auto; }
-.modal-card h3 { font-size:18px; color:#1a2b3c; margin-bottom:20px;
-  display:flex; align-items:center; gap:10px; }
-.modal-card h3 i { color:#4fc3f7; }
-.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
-
-/* ============ RESPONSIVE ============ */
-.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:999; }
-@media (max-width:768px) {
-  body.sidebar-hidden .sidebar-overlay { display:block; }
-  .topbar { padding:12px 18px; }
-  .page-content { padding:18px 16px 30px; }
-  .user-profile .info { display:none; }
-}
-.sidebar::-webkit-scrollbar { width:4px; }
-.sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:10px; }
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -307,14 +49,8 @@ button.small { padding:6px 12px; font-size:12px; }
     </div>
     <div class="login-form">
       <div class="grid2">
-        <div>
-          <label>Username</label>
-          <input type="text" id="regUsername" placeholder="min 3 karakter">
-        </div>
-        <div>
-          <label>Unit Kerja / Sekolah</label>
-          <input type="text" id="regUnitKerja" placeholder="misal: SDN 01 Jakarta">
-        </div>
+        <div><label>Username</label><input type="text" id="regUsername" placeholder="min 3 karakter"></div>
+        <div><label>Unit Kerja / Sekolah</label><input type="text" id="regUnitKerja" placeholder="misal: SDN 01 Jakarta"></div>
       </div>
       <div class="grid2" style="margin-top:16px;">
         <div>
@@ -388,7 +124,6 @@ button.small { padding:6px 12px; font-size:12px; }
     <a href="#" data-page="dashboard" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
     <a href="#" data-page="identitas"><i class="fas fa-id-card"></i> Identitas</a>
     <a href="#" data-page="server"><i class="fas fa-cloud-download-alt"></i> Ambil Paket</a>
-    <a href="#" data-page="local"><i class="fas fa-file-import"></i> Import ZIP</a>
     <div class="menu-label admin-only" style="margin-top:20px;">Admin</div>
     <a href="#" data-page="users" class="admin-only">
       <i class="fas fa-users-cog"></i> Manajemen User
@@ -403,7 +138,7 @@ button.small { padding:6px 12px; font-size:12px; }
     <div class="menu-label" style="margin-top:20px;">Sistem</div>
     <a href="#" data-page="log"><i class="fas fa-terminal"></i> Log Aktivitas</a>
   </nav>
-  <div class="sidebar-footer">&copy; 2026 CetakAdm v2.1</div>
+  <div class="sidebar-footer">&copy; 2026 CetakAdm v3.0</div>
 </aside>
 
 <!-- ============ MAIN ============ -->
@@ -424,15 +159,13 @@ button.small { padding:6px 12px; font-size:12px; }
           <div class="role" id="userRole">—</div>
         </div>
       </div>
-      <button class="logout-btn" id="btnLogout" title="Logout">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
+      <button class="logout-btn" id="btnLogout" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
     </div>
   </header>
 
   <section class="page-content">
 
-    <!-- ============ DASHBOARD ============ -->
+    <!-- DASHBOARD -->
     <div class="page-panel active" id="page-dashboard">
       <div class="stats-grid">
         <div class="stat-card">
@@ -459,9 +192,8 @@ button.small { padding:6px 12px; font-size:12px; }
           <div class="card-body">
             <ul class="info-list">
               <li><span class="label">1. Lengkapi identitas sekolah & guru</span><a href="#" data-page="identitas" class="action-link">Buka →</a></li>
-              <li><span class="label">2. Ambil paket Dokumen dari server</span><a href="#" data-page="server" class="action-link">Buka →</a></li>
-              <li><span class="label">3. Import ZIP & proses offline</span><a href="#" data-page="local" class="action-link">Buka →</a></li>
-              <li><span class="label">4. Lihat aktivitas sistem</span><a href="#" data-page="log" class="action-link">Buka →</a></li>
+              <li><span class="label">2. Unduh & proses paket Dokumen dari server</span><a href="#" data-page="server" class="action-link">Buka →</a></li>
+              <li><span class="label">3. Lihat aktivitas sistem</span><a href="#" data-page="log" class="action-link">Buka →</a></li>
             </ul>
           </div>
         </div>
@@ -479,7 +211,7 @@ button.small { padding:6px 12px; font-size:12px; }
       </div>
     </div>
 
-    <!-- ============ IDENTITAS ============ -->
+    <!-- IDENTITAS -->
     <div class="page-panel" id="page-identitas">
       <div class="rpp-info">
         Identitas ini <b>milik akun Anda sendiri</b> dan tersimpan di cache browser ini.
@@ -490,14 +222,8 @@ button.small { padding:6px 12px; font-size:12px; }
         <div class="card-header"><h3><i class="fas fa-school"></i> Sekolah</h3></div>
         <div class="card-body">
           <div class="grid2">
-            <div>
-              <label>Nama Sekolah</label>
-              <input type="text" id="fSekolah" placeholder="Contoh: SMAN 1 Jakarta">
-            </div>
-            <div>
-              <label>Tahun Ajaran</label>
-              <input type="text" id="fTahunAjaran" placeholder="Contoh: 2025/2026">
-            </div>
+            <div><label>Nama Sekolah</label><input type="text" id="fSekolah" placeholder="Contoh: SMAN 1 Jakarta"></div>
+            <div><label>Tahun Ajaran</label><input type="text" id="fTahunAjaran" placeholder="Contoh: 2025/2026"></div>
           </div>
         </div>
       </div>
@@ -506,14 +232,8 @@ button.small { padding:6px 12px; font-size:12px; }
         <div class="card-header"><h3><i class="fas fa-user-tie"></i> Kepala Sekolah</h3></div>
         <div class="card-body">
           <div class="grid2">
-            <div>
-              <label>Nama Kepala Sekolah</label>
-              <input type="text" id="fKS" placeholder="Contoh: Dr. H. Suparman, M.Pd.">
-            </div>
-            <div>
-              <label>NIP Kepala Sekolah</label>
-              <input type="text" id="fNIPKS" placeholder="19750101 199501 1 001">
-            </div>
+            <div><label>Nama Kepala Sekolah</label><input type="text" id="fKS" placeholder="Contoh: Dr. H. Suparman, M.Pd."></div>
+            <div><label>NIP Kepala Sekolah</label><input type="text" id="fNIPKS" placeholder="19750101 199501 1 001"></div>
           </div>
         </div>
       </div>
@@ -522,14 +242,8 @@ button.small { padding:6px 12px; font-size:12px; }
         <div class="card-header"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3></div>
         <div class="card-body">
           <div class="grid2">
-            <div>
-              <label>Nama Guru</label>
-              <input type="text" id="fGuru" placeholder="Contoh: Budi Santoso, S.Pd.">
-            </div>
-            <div>
-              <label>NIP Guru</label>
-              <input type="text" id="fNIPGuru" placeholder="19800101 200501 1 001">
-            </div>
+            <div><label>Nama Guru</label><input type="text" id="fGuru" placeholder="Contoh: Budi Santoso, S.Pd."></div>
+            <div><label>NIP Guru</label><input type="text" id="fNIPGuru" placeholder="19800101 200501 1 001"></div>
           </div>
         </div>
       </div>
@@ -538,35 +252,29 @@ button.small { padding:6px 12px; font-size:12px; }
         <div class="card-header"><h3><i class="fas fa-signature"></i> Tanda Tangan Laporan</h3></div>
         <div class="card-body">
           <div class="grid2">
-            <div>
-              <label>Tempat TTD Laporan</label>
-              <input type="text" id="fTempat" placeholder="Contoh: Jakarta">
-            </div>
+            <div><label>Tempat TTD Laporan</label><input type="text" id="fTempat" placeholder="Contoh: Jakarta"></div>
             <div>
               <label>Tanggal Laporan</label>
               <input type="text" id="fTanggal" placeholder="Contoh: 15 Januari 2026">
-              <div style="font-size:11px; color:#7a8a9e; margin-top:6px;">
-                <i class="fas fa-info-circle"></i> Kosongkan jika ingin otomatis terisi
-                <b>"...................."</b> di laporan.
-              </div>
+              <div class="field-hint"><i class="fas fa-info-circle"></i> Kosongkan jika ingin otomatis terisi <b>"...................."</b> di laporan.</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ============ SERVER ============ -->
+    <!-- SERVER -->
     <div class="page-panel" id="page-server">
       <div class="rpp-info">
-        Pilih paket Dokumen yang ingin diambil, lalu unduh sebagai ZIP. ZIP ini berisi template <b>asli</b>
-        (belum diisi identitas). Simpan di PC, lalu olah di menu <b>Import ZIP</b>.
+        Pilih paket Dokumen yang ingin diambil. File akan <b>diunduh, diisi identitas, dan diproses otomatis</b>
+        dalam satu klik — hasilnya langsung ZIP siap pakai.
       </div>
       <div id="quotaBadge" class="quota-strip" style="display:none;"></div>
 
       <div class="card-panel" style="margin-top:16px;">
         <div class="card-header">
           <h3><i class="fas fa-filter"></i> Filter Paket</h3>
-          <span style="font-size:12px; color:#7a8a9e;" id="status">Memuat...</span>
+          <span class="card-status" id="status">Memuat...</span>
         </div>
         <div class="card-body">
           <div class="grid3">
@@ -578,14 +286,15 @@ button.small { padding:6px 12px; font-size:12px; }
             <button id="btnSync" class="secondary"><i class="fas fa-sync"></i> Sinkron Data</button>
             <button id="btnAll" class="secondary"><i class="fas fa-check"></i> Pilih Semua</button>
             <button id="btnNone" class="secondary"><i class="fas fa-times"></i> Kosongkan</button>
-            <button id="btnDownloadZip" class="green" disabled><i class="fas fa-file-archive"></i> Unduh Paket ZIP</button>
+            <button id="btnDownloadZip" class="green" disabled><i class="fas fa-magic"></i> Unduh &amp; Proses</button>
           </div>
           <div class="progress" id="progress"><div class="bar" id="progressBar"></div></div>
+          <div id="progressInfo"></div>
         </div>
       </div>
 
       <div class="card-panel" style="margin-top:16px;">
-        <div class="card-header"><h3><i class="fas fa-list"></i> Daftar RPP</h3></div>
+        <div class="card-header"><h3><i class="fas fa-list"></i> Daftar Dokumen</h3></div>
         <div class="card-body no-pad">
           <div class="table-wrap">
             <table>
@@ -604,40 +313,7 @@ button.small { padding:6px 12px; font-size:12px; }
       </div>
     </div>
 
-    <!-- ============ LOCAL (IMPORT ZIP) ============ -->
-    <div class="page-panel" id="page-local">
-      <div class="rpp-info">
-        Drag & drop file ZIP (hasil unduhan dari menu <b>Ambil Paket</b>) ke kotak di bawah.
-        File akan diproses <b>sepenuhnya di browser Anda</b> — tidak ada yang dikirim ke server.
-      </div>
-
-      <div class="dropzone" id="dropzone">
-        <div class="big"><i class="fas fa-cloud-upload-alt"></i></div>
-        <div><b>Klik untuk pilih file</b> atau drag ZIP ke sini</div>
-        <div class="hint">Mendukung file .zip berisi template DOCX dan XLSX</div>
-        <input type="file" id="fileZip" accept=".zip" style="display:none;">
-      </div>
-
-      <div id="zipInfo" style="display:none; margin-top:16px;">
-        <div class="rpp-info" id="zipInfoText"></div>
-        <div class="card-panel" style="margin-top:16px;">
-          <div class="card-header"><h3><i class="fas fa-file-archive"></i> File dalam ZIP</h3></div>
-          <div class="card-body no-pad" id="zipFileList"></div>
-        </div>
-        <div class="card-panel" style="margin-top:16px;">
-          <div class="card-body">
-            <div class="toolbar">
-              <button id="btnProcess" class="green"><i class="fas fa-magic"></i> Proses & Unduh ZIP</button>
-              <button id="btnClear" class="secondary"><i class="fas fa-trash"></i> Bersihkan</button>
-              <span class="status" id="localStatus"></span>
-            </div>
-            <div class="progress" id="localProgress"><div class="bar" id="localProgressBar"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ USERS (admin) ============ -->
+    <!-- USERS (admin) -->
     <div class="page-panel" id="page-users">
       <div class="rpp-info">
         Khusus <b>Admin</b>: terima pengajuan user baru, atau nonaktifkan user yang tidak berhak.
@@ -670,7 +346,7 @@ button.small { padding:6px 12px; font-size:12px; }
       </div>
     </div>
 
-    <!-- ============ IMPORT DRIVE (admin) ============ -->
+    <!-- IMPORT DRIVE (admin) -->
     <div class="page-panel" id="page-importdrive">
       <div class="rpp-info warning">
         ⚠ <b>Perhatian:</b> tombol <b>Terapkan</b> akan <b>menghapus semua baris</b> di sheet
@@ -685,7 +361,7 @@ button.small { padding:6px 12px; font-size:12px; }
             <input type="text" id="driveUrl" placeholder="https://drive.google.com/drive/folders/..." style="flex:1; min-width:240px;">
             <button class="secondary" id="btnSaveDriveUrl"><i class="fas fa-save"></i> Simpan</button>
           </div>
-          <div style="font-size:11px; color:#7a8a9e; margin-top:8px;">
+          <div class="field-hint" style="margin-top:8px;">
             Struktur: <code>Kelas 1</code>–<code>Kelas 6</code> (wajib).
             Subfolder <code>Semester 1/2</code> opsional. Kosongkan URL untuk kembali ke default.
           </div>
@@ -701,7 +377,7 @@ button.small { padding:6px 12px; font-size:12px; }
           </div>
         </div>
         <div class="card-body no-pad">
-          <div id="drivePreviewInfo" style="padding:16px; font-size:13px; color:#7a8a9e;">
+          <div id="drivePreviewInfo" class="drive-preview-info">
             Klik <b>Scan</b> untuk melihat preview file yang akan diimport. Sheet tidak diubah pada tahap ini.
           </div>
           <div id="drivePreviewWrap" style="display:none;">
@@ -719,7 +395,7 @@ button.small { padding:6px 12px; font-size:12px; }
       </div>
     </div>
 
-    <!-- ============ LOG UNDUHAN (admin) ============ -->
+    <!-- LOG UNDUHAN (admin) -->
     <div class="page-panel" id="page-logunduh">
       <div class="rpp-info">
         Riwayat permintaan unduhan — berhasil, gagal, maupun ditolak karena kuota.
@@ -730,7 +406,7 @@ button.small { padding:6px 12px; font-size:12px; }
         <div class="card-header">
           <h3><i class="fas fa-history"></i> Riwayat Unduhan</h3>
           <div style="display:flex; gap:8px; align-items:center;">
-            <select id="logUnduhLimit" style="width:auto; padding:6px 10px; font-size:12px;">
+            <select id="logUnduhLimit" class="select-sm">
               <option value="50">50 terakhir</option>
               <option value="100" selected>100 terakhir</option>
               <option value="200">200 terakhir</option>
@@ -743,18 +419,18 @@ button.small { padding:6px 12px; font-size:12px; }
           <div class="grid3" style="margin-bottom:16px;">
             <div>
               <label>Hari Ini</label>
-              <div id="logSumToday" style="font-size:20px; font-weight:700; color:#1976d2;">—</div>
-              <small style="color:#7a8a9e;">file diunduh</small>
+              <div id="logSumToday" class="log-stat" style="color:#1976d2;">—</div>
+              <small class="log-stat-label">file diunduh</small>
             </div>
             <div>
               <label>Ditolak Hari Ini</label>
-              <div id="logSumRejected" style="font-size:20px; font-weight:700; color:#c62828;">—</div>
-              <small style="color:#7a8a9e;">permintaan ditolak</small>
+              <div id="logSumRejected" class="log-stat" style="color:#c62828;">—</div>
+              <small class="log-stat-label">permintaan ditolak</small>
             </div>
             <div>
               <label>Sisa Kuota Sistem</label>
-              <div id="logSumRemaining" style="font-size:20px; font-weight:700; color:#2e7d32;">—</div>
-              <small style="color:#7a8a9e;">file hari ini</small>
+              <div id="logSumRemaining" class="log-stat" style="color:#2e7d32;">—</div>
+              <small class="log-stat-label">file hari ini</small>
             </div>
           </div>
           <div class="table-wrap">
@@ -774,14 +450,12 @@ button.small { padding:6px 12px; font-size:12px; }
       </div>
     </div>
 
-    <!-- ============ LOG AKTIVITAS ============ -->
+    <!-- LOG AKTIVITAS -->
     <div class="page-panel" id="page-log">
       <div class="card-panel">
         <div class="card-header">
           <h3><i class="fas fa-terminal"></i> Log Aktivitas</h3>
-          <button class="secondary small" id="btnClearLog">
-            <i class="fas fa-eraser"></i> Bersihkan
-          </button>
+          <button class="secondary small" id="btnClearLog"><i class="fas fa-eraser"></i> Bersihkan</button>
         </div>
         <div class="card-body no-pad" style="padding:16px;">
           <div id="log">Aplikasi siap. Menunggu aktivitas...</div>
@@ -850,1387 +524,6 @@ button.small { padding:6px 12px; font-size:12px; }
   </div>
 </div>
 
-<!-- Modal user modal ends here — lanjut ke <script> di Part 4 -->
-
-<script>
-/* ============================================================
-   KONFIGURASI
-   ============================================================ */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmxd967YOIkxUzxfM1GEz8X_jayZQxSCHgqVAHBOtQchqkjr8fWtYOZY5DqzDE1c-WcA/exec';
-const LS_LIST          = 'rpp_list_v1';
-const LS_IDENT_PREFIX  = 'adm_ident_';
-const LS_SESSION       = 'adm_session_v1';
-
-/* ============================================================
-   STATE
-   ============================================================ */
-let listData          = [];
-let selectedIds       = new Set();
-let loadedZip         = null;
-let loadedZipName     = '';
-let session           = null;
-let drivePreviewData  = null;
-let quotaInfo         = null;
-
-/* ============================================================
-   HELPERS
-   ============================================================ */
-const logEl = document.getElementById('log');
-function log(msg) {
-  const ts = new Date().toLocaleTimeString('id-ID');
-  logEl.textContent += `\n[${ts}] ${msg}`;
-  logEl.scrollTop = logEl.scrollHeight;
-}
-const setStatus      = s => document.getElementById('status').textContent = s;
-const setLocalStatus = s => document.getElementById('localStatus').textContent = s;
-const esc            = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const sanitize       = s => String(s).replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').trim();
-
-function identKey() {
-  return LS_IDENT_PREFIX + (session && session.ID ? session.ID : 'guest');
-}
-function buildRegex(ph) {
-  const chars = ph.split('').map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  return new RegExp(chars.join('(?:<[^>]+>)*'), 'g');
-}
-function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-function base64ToUint8(b64) {
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
-}
-function extractLinkId(link) {
-  if (!link) return '';
-  const s = String(link).trim();
-  if (/^[a-zA-Z0-9_-]{20,}$/.test(s) && !s.includes('/')) return s;
-  let m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
-  m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m) return m[1];
-  m = s.match(/\/d\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
-  return s;
-}
-
-/* ============================================================
-   API (POST)
-   ============================================================ */
-async function apiPost(payload) {
-  let res;
-  try {
-    res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-  } catch (netErr) {
-    throw new Error('Tidak bisa menghubungi server. Cek koneksi.');
-  }
-  const text = await res.text();
-  let json;
-  try { json = JSON.parse(text); }
-  catch (e) {
-    console.error('Respons bukan JSON:', text.substring(0, 400));
-    throw new Error('Server tidak merespons JSON. Kemungkinan deploy GAS salah atau "Who has access" bukan "Anyone".');
-  }
-  if (!json.ok) throw new Error(json.error || 'Request gagal');
-  return json;
-}
-
-/* ============================================================
-   SESSION
-   ============================================================ */
-function loadSession() {
-  try { session = JSON.parse(localStorage.getItem(LS_SESSION) || 'null'); }
-  catch { session = null; }
-  return session;
-}
-function saveSession(s) {
-  session = s;
-  localStorage.setItem(LS_SESSION, JSON.stringify(s));
-}
-function clearSession() {
-  session = null;
-  localStorage.removeItem(LS_SESSION);
-}
-
-/* ============================================================
-   PORTAL: VERIFIKASI STATUS
-   ============================================================ */
-async function verifyActiveUser() {
-  if (!session) return false;
-  try {
-    const json = await apiPost({ action: 'getUser', id: session.ID });
-    if (!json.user) throw new Error('User tidak ditemukan');
-    const status = String(json.user.Status || '').toLowerCase();
-    if (status !== 'aktif') {
-      clearSession();
-      const msg = status === 'pending'
-        ? 'Akun Anda masih menunggu persetujuan admin.'
-        : 'Akun Anda telah dinonaktifkan oleh admin.';
-      alert(msg + '\nSilakan hubungi admin atau login dengan akun lain.');
-      location.reload();
-      return false;
-    }
-    saveSession(json.user);
-    applySession();
-    return true;
-  } catch (e) {
-    const msg = String(e.message || '').toLowerCase();
-    if (msg.includes('tidak ditemukan')) {
-      clearSession();
-      alert('Akun tidak ditemukan di server.\nSilakan login kembali.');
-      location.reload();
-      return false;
-    }
-    log('⚠ Verifikasi server gagal (mode offline): ' + e.message);
-    return true;
-  }
-}
-
-/* ============================================================
-   LOGIN / LOGOUT / REGISTER
-   ============================================================ */
-const loginOverlay    = document.getElementById('loginOverlay');
-const registerOverlay = document.getElementById('registerOverlay');
-const loginError      = document.getElementById('loginError');
-const regError        = document.getElementById('regError');
-const btnLogin        = document.getElementById('btnLogin');
-const btnRegister     = document.getElementById('btnRegister');
-const loginUserEl     = document.getElementById('loginUser');
-const loginPassEl     = document.getElementById('loginPass');
-
-function showLogin()     { loginOverlay.classList.add('show'); }
-function hideLogin()     { loginOverlay.classList.remove('show'); }
-function showRegister()  { loginOverlay.classList.remove('show'); registerOverlay.classList.add('show'); }
-function hideRegister()  { registerOverlay.classList.remove('show'); loginOverlay.classList.add('show'); }
-
-document.getElementById('linkToRegister').addEventListener('click', e => { e.preventDefault(); showRegister(); });
-document.getElementById('linkBackToLogin').addEventListener('click', e => { e.preventDefault(); hideRegister(); });
-
-async function doLogin() {
-  const username = loginUserEl.value.trim();
-  const password = loginPassEl.value;
-  loginError.textContent = '';
-  if (!username || !password) {
-    loginError.textContent = 'Username dan password wajib diisi.';
-    return;
-  }
-  btnLogin.disabled = true;
-  btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
-  try {
-    const json = await apiPost({ action: 'login', username, password });
-    if (!json.user) throw new Error('Respons login tidak valid.');
-    if (String(json.user.Status).toLowerCase() !== 'aktif') {
-      const st = String(json.user.Status).toLowerCase();
-      throw new Error(st === 'pending'
-        ? 'Akun masih menunggu persetujuan admin.'
-        : 'Akun tidak aktif. Hubungi admin.');
-    }
-    saveSession(json.user);
-    loginPassEl.value = '';
-    hideLogin();
-    applySession();
-    log(`✓ Login berhasil: ${json.user.Username} (${json.user.JenisUser})`);
-    startApp();
-  } catch (e) {
-    loginError.textContent = e.message;
-    log('❌ Login gagal: ' + e.message);
-  } finally {
-    btnLogin.disabled = false;
-    btnLogin.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
-  }
-}
-
-async function doRegister() {
-  const u  = document.getElementById('regUsername').value.trim();
-  const p  = document.getElementById('regPassword').value;
-  const p2 = document.getElementById('regPassword2').value;
-  const uk = document.getElementById('regUnitKerja').value.trim();
-  const jg = document.getElementById('regJenisGuru').value;
-  const pl = document.getElementById('regPelajaran').value;
-  const kl = document.getElementById('regKelas').value;
-
-  regError.textContent = '';
-  if (u.length < 3) { regError.textContent = 'Username minimal 3 karakter.'; return; }
-  if (p.length < 6) { regError.textContent = 'Password minimal 6 karakter.'; return; }
-  if (p !== p2)     { regError.textContent = 'Konfirmasi password tidak cocok.'; return; }
-  if (!uk)          { regError.textContent = 'Unit Kerja wajib diisi.'; return; }
-
-  btnRegister.disabled = true;
-  btnRegister.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-  try {
-    await apiPost({
-      action: 'register',
-      username: u, password: p,
-      unitKerja: uk, jenisGuru: jg, pelajaran: pl, kelas: kl
-    });
-    alert('✅ Pengajuan terkirim!\n\nAkun Anda akan aktif setelah disetujui admin.');
-    hideRegister();
-    ['regUsername','regPassword','regPassword2','regUnitKerja'].forEach(id => document.getElementById(id).value = '');
-    loginUserEl.value = u;
-    loginPassEl.focus();
-    log('✓ Pengajuan akun: ' + u);
-  } catch (e) {
-    regError.textContent = e.message;
-    log('❌ Registrasi gagal: ' + e.message);
-  } finally {
-    btnRegister.disabled = false;
-    btnRegister.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Pengajuan';
-  }
-}
-
-function doLogout() {
-  if (!confirm('Yakin ingin logout?\n\nIdentitas Anda tetap tersimpan di browser ini dan akan muncul lagi saat login berikutnya.')) return;
-  clearSession();
-  log('User logout.');
-  location.reload();
-}
-
-btnLogin.addEventListener('click', doLogin);
-btnRegister.addEventListener('click', doRegister);
-loginPassEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-loginUserEl.addEventListener('keydown', e => { if (e.key === 'Enter') loginPassEl.focus(); });
-document.getElementById('btnLogout').addEventListener('click', doLogout);
-
-/* ============================================================
-   APPLY SESSION
-   ============================================================ */
-function applySession() {
-  if (!session) return;
-  const isAdmin = String(session.JenisUser).toLowerCase() === 'admin';
-  document.body.classList.toggle('is-admin', isAdmin);
-
-  document.getElementById('userAvatar').textContent = (session.Username || '?').slice(0, 2);
-  document.getElementById('userName').textContent = session.Username || '—';
-  document.getElementById('userRole').textContent =
-    isAdmin ? 'Administrator' : (session.JenisGuru || 'Pelanggan');
-
-  loadIdentitas();
-  updateIdentitasRingkas();
-
-  const fSekolah = document.getElementById('fSekolah');
-  if (session.UnitKerja && !fSekolah.value) {
-    fSekolah.value = session.UnitKerja;
-    saveIdentitas();
-  }
-}
-
-/* ============================================================
-   NAVIGASI
-   ============================================================ */
-const pageTitles = {
-  dashboard:   { title: 'Dashboard',      subtitle: 'Selamat datang! Sistem Cetak Administrasi Guru' },
-  identitas:   { title: 'Identitas',      subtitle: 'Data sekolah, guru, dan tanda tangan laporan' },
-  server:      { title: 'Ambil Paket',    subtitle: 'Unduh paket template RPP dari server' },
-  local:       { title: 'Import ZIP',     subtitle: 'Proses template DOCX & XLSX secara offline di browser' },
-  users:       { title: 'Manajemen User', subtitle: 'Terima pengajuan & kelola status user (admin)' },
-  importdrive: { title: 'Import Drive',   subtitle: 'Sinkronisasi file dari folder Google Drive' },
-  logunduh:    { title: 'Log Unduhan',    subtitle: 'Riwayat permintaan unduhan semua user (admin)' },
-  log:         { title: 'Log Aktivitas',  subtitle: 'Riwayat proses aplikasi (sesi ini)' },
-};
-
-function navigateTo(page) {
-  document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + page);
-  if (!target) return;
-  target.classList.add('active');
-  document.querySelectorAll('.sidebar-menu a[data-page]').forEach(a => {
-    a.classList.toggle('active', a.dataset.page === page);
-  });
-  const info = pageTitles[page] || pageTitles.dashboard;
-  document.getElementById('pageTitle').textContent = info.title;
-  document.getElementById('pageSubtitle').textContent = info.subtitle;
-  if (window.innerWidth <= 768) document.body.classList.add('sidebar-hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  const isAdmin = session && String(session.JenisUser).toLowerCase() === 'admin';
-  if (page === 'users' && isAdmin)       loadAndRenderUsers();
-  if (page === 'importdrive' && isAdmin) loadDriveConfig();
-  if (page === 'logunduh' && isAdmin)    loadLogUnduh();
-}
-
-document.querySelectorAll('[data-page]').forEach(el => {
-  el.addEventListener('click', e => { e.preventDefault(); navigateTo(el.dataset.page); });
-});
-
-/* ============================================================
-   SIDEBAR TOGGLE
-   ============================================================ */
-document.getElementById('hamburgerBtn').addEventListener('click', () => {
-  document.body.classList.toggle('sidebar-hidden');
-});
-document.getElementById('sidebarOverlay').addEventListener('click', () => {
-  document.body.classList.add('sidebar-hidden');
-});
-if (window.innerWidth <= 768) document.body.classList.add('sidebar-hidden');
-
-/* ============================================================
-   IDENTITAS (per user)
-   ============================================================ */
-const IDENT_FIELDS = ['fSekolah','fTahunAjaran','fKS','fNIPKS','fGuru','fNIPGuru','fTempat','fTanggal'];
-const REQUIRED_FIELDS = {
-  fSekolah:     'Nama Sekolah',
-  fTahunAjaran: 'Tahun Ajaran',
-  fKS:          'Nama Kepala Sekolah',
-  fNIPKS:       'NIP Kepala Sekolah',
-  fGuru:        'Nama Guru',
-  fNIPGuru:     'NIP Guru',
-  fTempat:      'Tempat TTD Laporan'
-};
-
-function loadIdentitas() {
-  try {
-    const s = JSON.parse(localStorage.getItem(identKey()) || '{}');
-    IDENT_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = s[id] || '';
-    });
-  } catch (e) {}
-}
-function saveIdentitas() {
-  if (!session) return;
-  const s = {};
-  IDENT_FIELDS.forEach(id => s[id] = document.getElementById(id).value);
-  localStorage.setItem(identKey(), JSON.stringify(s));
-  updateIdentitasRingkas();
-}
-IDENT_FIELDS.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', saveIdentitas);
-});
-
-function getReplacements() {
-  const tglRaw = document.getElementById('fTanggal').value.trim();
-  const tgl = tglRaw || '....................';
-  const tempat = document.getElementById('fTempat').value;
-  return {
-    '[NamaSekolah]':    document.getElementById('fSekolah').value,
-    '[TahunAjaran]':    document.getElementById('fTahunAjaran').value,
-    '[NamaGuru]':       document.getElementById('fGuru').value,
-    '[NamaKS]':         document.getElementById('fKS').value,
-    '[NIPGuru]':        document.getElementById('fNIPGuru').value,
-    '[NIPKS]':          document.getElementById('fNIPKS').value,
-    '[TempatTTD]':      tempat,
-    '[Tempat]':         tempat,
-    '[TanggalLaporan]': tgl,
-    '[Tanggal]':        tgl
-  };
-}
-
-function checkIdentitas() {
-  const missing = Object.entries(REQUIRED_FIELDS)
-    .filter(([id]) => !document.getElementById(id).value.trim());
-  if (missing.length) {
-    navigateTo('identitas');
-    setTimeout(() => {
-      alert('Lengkapi dulu identitas berikut:\n- ' +
-        missing.map(([, label]) => label).join('\n- '));
-    }, 250);
-    return false;
-  }
-  return true;
-}
-
-function updateIdentitasRingkas() {
-  const s = JSON.parse(localStorage.getItem(identKey()) || '{}');
-  const el = document.getElementById('identitasRingkas');
-  if (!el) return;
-  const empty = IDENT_FIELDS.every(id => !s[id]);
-  if (empty) {
-    el.innerHTML = '<li><span class="label">Belum ada data</span>' +
-      '<a href="#" data-page="identitas" class="action-link">Isi →</a></li>';
-    el.querySelectorAll('[data-page]').forEach(a =>
-      a.addEventListener('click', e => { e.preventDefault(); navigateTo(a.dataset.page); }));
-    return;
-  }
-  const tgl = s.fTanggal ? s.fTanggal : '....................';
-  el.innerHTML = `
-    <li><span class="label">Sekolah</span><span class="value">${esc(s.fSekolah || '—')}</span></li>
-    <li><span class="label">Tahun Ajaran</span><span class="value">${esc(s.fTahunAjaran || '—')}</span></li>
-    <li><span class="label">Kepala Sekolah</span><span class="value">${esc(s.fKS || '—')}</span></li>
-    <li><span class="label">NIP KS</span><span class="value">${esc(s.fNIPKS || '—')}</span></li>
-    <li><span class="label">Guru</span><span class="value">${esc(s.fGuru || '—')}</span></li>
-    <li><span class="label">NIP Guru</span><span class="value">${esc(s.fNIPGuru || '—')}</span></li>
-    <li><span class="label">Tempat TTD</span><span class="value">${esc(s.fTempat || '—')}</span></li>
-    <li><span class="label">Tanggal Laporan</span><span class="value">${esc(tgl)}</span></li>
-  `;
-}
-
-/* ============================================================
-   DASHBOARD STATS
-   ============================================================ */
-function updateDashboardStats() {
-  document.getElementById('statTotal').textContent = listData.length;
-  document.getElementById('statSelected').textContent = selectedIds.size;
-  const kelas = new Set(listData.map(r => r.kelas).filter(Boolean));
-  const mapel = new Set(listData.map(r => r.mapel).filter(Boolean));
-  document.getElementById('statKelas').textContent = kelas.size;
-  document.getElementById('statMapel').textContent = mapel.size;
-}
-
-/* ============================================================
-   FETCH LIST RPP
-   ============================================================ */
-async function fetchList() {
-  setStatus('Memuat daftar...');
-  const res = await fetch(GAS_URL + '?action=list');
-  const text = await res.text();
-  let json;
-  try { json = JSON.parse(text); }
-  catch (e) {
-    console.error('Respons list bukan JSON:', text.substring(0, 400));
-    throw new Error('Server tidak merespons JSON. Cek deploy GAS.');
-  }
-  if (!json.ok) throw new Error(json.error || 'Gagal fetch list');
-  localStorage.setItem(LS_LIST, JSON.stringify({ ts: Date.now(), data: json.data }));
-  return json.data;
-}
-
-/* ============================================================
-   FILTER & TABEL RPP
-   ============================================================ */
-function populateFilter(sel, values) {
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">— semua —</option>' +
-    values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  sel.value = cur;
-}
-function refreshFilters() {
-  const uniq = k => [...new Set(listData.map(r => r[k]).filter(Boolean))].sort();
-  populateFilter(document.getElementById('filterKelas'), uniq('kelas'));
-  populateFilter(document.getElementById('filterSemester'), uniq('semester'));
-  populateFilter(document.getElementById('filterMapel'), uniq('mapel'));
-}
-function getFilteredRows() {
-  const k = document.getElementById('filterKelas').value;
-  const s = document.getElementById('filterSemester').value;
-  const m = document.getElementById('filterMapel').value;
-  return listData.filter(r =>
-    (!k || String(r.kelas) === k) &&
-    (!s || String(r.semester) === s) &&
-    (!m || String(r.mapel) === m)
-  );
-}
-
-function renderTable() {
-  const rows = getFilteredRows();
-  const tbody = document.getElementById('tbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Tidak ada RPP yang cocok.</td></tr>';
-    updateZipButton(); updateCheckAll(); updateDashboardStats(); return;
-  }
-  tbody.innerHTML = rows.map(r => {
-    const id = String(r.id_adm);
-    const checked = selectedIds.has(id) ? 'checked' : '';
-    return `<tr>
-      <td><input type="checkbox" class="rowChk" data-id="${esc(id)}" ${checked}></td>
-      <td><span class="badge">${esc(r.id_adm)}</span></td>
-      <td>${esc(r.nama_adm)}</td>
-      <td>${esc(r.kelas)}</td>
-      <td>${esc(r.semester)}</td>
-      <td>${esc(r.mapel)}</td>
-      <td>${esc(r.bab)}</td>
-    </tr>`;
-  }).join('');
-
-  tbody.querySelectorAll('.rowChk').forEach(chk => {
-    chk.addEventListener('change', () => {
-      const id = chk.dataset.id;
-      if (chk.checked) selectedIds.add(id); else selectedIds.delete(id);
-      updateZipButton(); updateCheckAll(); updateDashboardStats();
-    });
-  });
-  updateZipButton(); updateCheckAll(); updateDashboardStats();
-}
-
-function updateZipButton() {
-  const btn = document.getElementById('btnDownloadZip');
-  const n = selectedIds.size;
-  btn.disabled = n === 0;
-  btn.innerHTML = n === 0
-    ? '<i class="fas fa-file-archive"></i> Unduh Paket ZIP'
-    : `<i class="fas fa-file-archive"></i> Unduh ${n} File (ZIP)`;
-}
-function updateCheckAll() {
-  const rows = getFilteredRows();
-  const all = rows.length > 0 && rows.every(r => selectedIds.has(String(r.id_adm)));
-  document.getElementById('checkAll').checked = all;
-}
-
-/* ============================================================
-   UNDUH ZIP — dengan kuota, chunking, retry, merge
-   ============================================================ */
-async function handleDownloadZip() {
-  // Hanya baris yang tampil DAN terpilih
-  const visibleIds = new Set(getFilteredRows().map(r => String(r.id_adm)));
-  const rows = listData.filter(r =>
-    selectedIds.has(String(r.id_adm)) && visibleIds.has(String(r.id_adm))
-  );
-  if (!rows.length) { alert('Pilih minimal 1 file dari baris yang tampil.'); return; }
-
-  setStatus('Memverifikasi akun...');
-  const active = await verifyActiveUser();
-  if (!active) { setStatus(''); return; }
-  setStatus(`${listData.length} RPP tersedia`);
-
-  // ── Cek kuota sebelum kirim ke server ──
-  try {
-    const check = await apiPost({
-      action: 'checkQuota',
-      userId: session.ID,
-      fileCount: rows.length
-    });
-    if (!check.allowed) {
-      alert(check.reason);
-      log('⚠ Unduhan ditolak: ' + check.reason);
-      return;
-    }
-    if (typeof check.remainingUser !== 'undefined' && check.remainingUser < rows.length * 2) {
-      if (!confirm(`Anda akan unduh ${rows.length} file.\nSisa kuota Anda: ${check.remainingUser} file hari ini.\n\nLanjutkan?`)) {
-        return;
-      }
-    }
-  } catch (e) {
-    alert('Gagal cek kuota: ' + e.message);
-    return;
-  }
-
-  const btn = document.getElementById('btnDownloadZip');
-  const prog = document.getElementById('progress');
-  const bar = document.getElementById('progressBar');
-  btn.disabled = true;
-  prog.classList.add('show');
-  bar.style.width = '5%';
-
-  const t0 = performance.now();
-  log(`\n=== Unduh ZIP: ${rows.length} file ===`);
-
-  const ids = rows.map(r => extractLinkId(r.link)).filter(Boolean);
-  if (!ids.length) {
-    alert('Tidak ada link file yang valid.');
-    btn.disabled = false;
-    setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-    return;
-  }
-
-  // Pecah batch 60 file
-  const CHUNK = 60;
-  const batches = [];
-  for (let i = 0; i < ids.length; i += CHUNK) batches.push(ids.slice(i, i + CHUNK));
-  log(`→ ${ids.length} file, ${batches.length} batch (maks ${CHUNK}/batch)`);
-
-  const batchResults = [];
-  const allErrors = [];
-  let failedBatches = 0;
-
-  for (let b = 0; b < batches.length; b++) {
-    const batchIds = batches[b];
-    bar.style.width = (10 + Math.round(((b + 1) / batches.length) * 75)) + '%';
-    log(`  Batch ${b + 1}/${batches.length} (${batchIds.length} file)...`);
-
-    let ok = false;
-    let lastErr = '';
-    for (let attempt = 1; attempt <= 3 && !ok; attempt++) {
-      try {
-        const json = await apiPost({
-          action: 'zip',
-          ids: batchIds,
-          userId: session.ID,
-          username: session.Username
-        });
-        if (json.errors && json.errors.length) {
-          json.errors.forEach(e => allErrors.push(e));
-        }
-        if (!json.data) throw new Error('Respons tanpa data');
-        const bin = base64ToUint8(json.data);
-        batchResults.push({ index: b, bytes: bin, count: json.count });
-        log(`  ✓ Batch ${b + 1}: ${json.count} file, ${(json.size / 1024 / 1024).toFixed(2)} MB`);
-        ok = true;
-      } catch (e) {
-        lastErr = e.message;
-        if (attempt < 3) {
-          log(`  ⚠ Attempt ${attempt} gagal: ${e.message} — retry ${attempt + 1}/3...`);
-          await new Promise(r => setTimeout(r, 1500 * attempt));
-        }
-      }
-    }
-    if (!ok) {
-      failedBatches++;
-      log(`  ❌ Batch ${b + 1} GAGAL setelah 3x: ${lastErr}`);
-    }
-    if (b < batches.length - 1) await new Promise(r => setTimeout(r, 800));
-  }
-
-  if (!batchResults.length) {
-    alert('Semua batch gagal. Cek koneksi & coba lagi.');
-    log('❌ Semua batch gagal.');
-    btn.disabled = false;
-    setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-    return;
-  }
-
-  bar.style.width = '88%';
-  const stamp = new Date().toISOString().slice(0, 10);
-
-  if (batchResults.length === 1) {
-    const item = batchResults[0];
-    const blob = new Blob([item.bytes], { type: 'application/zip' });
-    downloadBlob(blob, `paket_adm_guru_${stamp}.zip`);
-    log(`✅ ${item.count} file tersimpan (1 ZIP).`);
-  } else {
-    log(`📦 Menggabungkan ${batchResults.length} batch di browser...`);
-    const outZip = new JSZip();
-    const usedNames = new Set();
-    let totalFiles = 0;
-
-    for (let i = 0; i < batchResults.length; i++) {
-      const item = batchResults[i];
-      try {
-        const partial = await JSZip.loadAsync(item.bytes);
-        const names = Object.keys(partial.files);
-        let added = 0;
-        for (let j = 0; j < names.length; j++) {
-          const path = names[j];
-          const f = partial.files[path];
-          if (f.dir) continue;
-          let fname = path;
-          if (usedNames.has(fname)) {
-            const ext = (fname.match(/\.[^.]+$/) || [''])[0];
-            const base = fname.replace(/\.[^.]+$/, '');
-            let n = 2;
-            while (usedNames.has(base + '_' + n + ext)) n++;
-            fname = base + '_' + n + ext;
-          }
-          usedNames.add(fname);
-          const content = await f.async('blob');
-          outZip.file(fname, content);
-          totalFiles++;
-          added++;
-        }
-        log(`  Merge batch ${item.index + 1}: +${added} file`);
-      } catch (e) {
-        log(`  ⚠ Batch ${item.index + 1} gagal merge (${e.message}) — simpan terpisah`);
-        const blob = new Blob([item.bytes], { type: 'application/zip' });
-        downloadBlob(blob, `paket_adm_guru_${stamp}_part${item.index + 1}.zip`);
-      }
-    }
-
-    if (!totalFiles) {
-      alert('Tidak ada file berhasil digabung. Cek Log Aktivitas.');
-      btn.disabled = false;
-      setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-      return;
-    }
-
-    bar.style.width = '96%';
-    log(`📦 Menulis ZIP final (${totalFiles} file)...`);
-    const finalBlob = await outZip.generateAsync({
-      type: 'blob',
-      compression: 'DEFLATE',
-      compressionOptions: { level: 6 }
-    });
-    downloadBlob(finalBlob, `paket_adm_guru_${stamp}.zip`);
-    log(`✅ ${totalFiles} file tersimpan (${(finalBlob.size / 1024 / 1024).toFixed(2)} MB).`);
-  }
-
-  bar.style.width = '100%';
-  const dt = ((performance.now() - t0) / 1000).toFixed(1);
-  log(`\n=== Selesai dalam ${dt}s ===`);
-
-  if (allErrors.length) {
-    log(`⚠ ${allErrors.length} file gagal dari server:`);
-    allErrors.forEach(e => log(`  - ${e.id}: ${e.error}`));
-  }
-  if (failedBatches > 0) {
-    log(`⚠ ${failedBatches} dari ${batches.length} batch gagal.`);
-    alert(`Selesai dengan peringatan:\n${failedBatches} batch gagal.\nCek Log Aktivitas.`);
-  }
-
-  // Refresh kuota
-  fetchQuotaInfo();
-
-  btn.disabled = false;
-  setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-}
-
-/* ============================================================
-   KUOTA — FETCH & RENDER
-   ============================================================ */
-async function fetchQuotaInfo() {
-  if (!session) return;
-  try {
-    const json = await apiPost({ action: 'getQuota', userId: session.ID });
-    quotaInfo = json;
-    renderQuotaBadge();
-  } catch (e) {
-    log('⚠ Gagal muat info kuota: ' + e.message);
-  }
-}
-
-function renderQuotaBadge() {
-  const el = document.getElementById('quotaBadge');
-  if (!el) return;
-  if (!quotaInfo || !quotaInfo.user || !quotaInfo.global) {
-    el.style.display = 'none';
-    return;
-  }
-  el.style.display = '';
-  const u = quotaInfo.user;
-  const g = quotaInfo.global;
-  const habis = (u.remaining <= 0) || (g.remaining <= 0);
-  el.classList.toggle('danger', habis);
-  el.innerHTML = `
-    <div>
-      <i class="fas fa-tachometer-alt" style="color:${habis ? '#c62828' : '#1976d2'};"></i>
-      <strong>Kuota Anda hari ini:</strong> ${u.used} / ${u.limit} file
-      (sisa <strong>${u.remaining}</strong>)
-      &nbsp;·&nbsp;
-      <small>Sistem: ${g.used} / ${g.limit} (sisa ${g.remaining})</small>
-    </div>
-    <div>
-      <small>Reset: besok 00:00 WIB</small>
-    </div>
-  `;
-}
-
-/* ============================================================
-   TOGGLE PASSWORD
-   ============================================================ */
-document.querySelectorAll('.toggle-pass').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = document.getElementById(btn.dataset.target);
-    if (!target) return;
-    const show = target.type === 'password';
-    target.type = show ? 'text' : 'password';
-    const icon = btn.querySelector('i');
-    icon.className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
-    btn.title = show ? 'Sembunyikan password' : 'Lihat password';
-  });
-});
-
-/* ⏭ Bersambung ke Part 5 — fungsi lokal ZIP, user management,
-     drive import, log unduh, event bindings, boot/init */
-	 
-/* ============================================================
-   IMPORT ZIP LOKAL — drag & drop
-   ============================================================ */
-const dropzone = document.getElementById('dropzone');
-const fileZip  = document.getElementById('fileZip');
-
-dropzone.addEventListener('click', () => fileZip.click());
-dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-dropzone.addEventListener('drop', e => {
-  e.preventDefault(); dropzone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) handleZipFile(e.dataTransfer.files[0]);
-});
-fileZip.addEventListener('change', e => {
-  if (e.target.files.length) handleZipFile(e.target.files[0]);
-});
-
-async function handleZipFile(file) {
-  if (!file.name.toLowerCase().endsWith('.zip')) { alert('File harus .zip'); return; }
-  log(`\n=== Import: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB) ===`);
-  setLocalStatus('Membaca ZIP...');
-  try {
-    const buf = await file.arrayBuffer();
-    loadedZip = await JSZip.loadAsync(buf);
-    loadedZipName = file.name;
-    const entries = [];
-    loadedZip.forEach((path, entry) => {
-      if (!entry.dir && /\.(docx|xlsx)$/i.test(path)) entries.push({ path, entry });
-    });
-    if (entries.length === 0) {
-      alert('Tidak ada file .docx / .xlsx di dalam ZIP.');
-      loadedZip = null; setLocalStatus(''); return;
-    }
-    document.getElementById('zipInfo').style.display = 'block';
-    document.getElementById('zipInfoText').innerHTML =
-      `✅ <b>${file.name}</b> berisi <b>${entries.length} file</b> (DOCX &amp; XLSX) siap diproses.`;
-    const listEl = document.getElementById('zipFileList');
-    const detailed = [];
-    for (const e of entries) {
-      const stat = e.entry._data && e.entry._data.uncompressedSize
-        ? ` <span class="size">(${(e.entry._data.uncompressedSize/1024).toFixed(0)} KB)</span>` : '';
-      detailed.push(`<div class="fileitem"><span>${esc(e.path)}</span>${stat}</div>`);
-    }
-    listEl.innerHTML = detailed.join('');
-    setLocalStatus(`${entries.length} file siap diproses`);
-    log(`✓ ${entries.length} file ditemukan di ZIP`);
-    document.getElementById('dropzone').scrollIntoView({ behavior: 'smooth' });
-  } catch (e) {
-    log(`❌ ${e.message}`);
-    alert('Gagal baca ZIP: ' + e.message);
-    loadedZip = null; setLocalStatus('');
-  }
-}
-
-/* ============================================================
-   MAIL MERGE — DOCX
-   ============================================================ */
-async function editDocxArrayBuffer(buf, replacements) {
-  const zip = await JSZip.loadAsync(buf);
-  const targets = Object.keys(zip.files).filter(n =>
-    n === 'word/document.xml' ||
-    n.startsWith('word/header') ||
-    n.startsWith('word/footer')
-  );
-  for (const path of targets) {
-    let xml = await zip.file(path).async('string');
-    for (const [key, val] of Object.entries(replacements)) {
-      xml = xml.replace(buildRegex(key), esc(val));
-    }
-    zip.file(path, xml);
-  }
-  return await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    compression: 'DEFLATE',
-    compressionOptions: { level: 6 }
-  });
-}
-
-/* ============================================================
-   MAIL MERGE — XLSX
-   ============================================================ */
-async function editXlsxArrayBuffer(buf, replacements) {
-  const zip = await JSZip.loadAsync(buf);
-  const targets = Object.keys(zip.files).filter(n =>
-    n === 'xl/sharedStrings.xml' ||
-    /^xl\/worksheets\/sheet\d+\.xml$/.test(n)
-  );
-  for (const path of targets) {
-    let xml = await zip.file(path).async('string');
-    for (const [key, val] of Object.entries(replacements)) {
-      xml = xml.replace(buildRegex(key), esc(val));
-    }
-    zip.file(path, xml);
-  }
-  return await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    compression: 'DEFLATE',
-    compressionOptions: { level: 6 }
-  });
-}
-
-/* ============================================================
-   PROSES ZIP LOKAL
-   ============================================================ */
-async function handleProcess() {
-  if (!loadedZip) { alert('Belum ada ZIP yang diimport.'); return; }
-  if (!checkIdentitas()) return;
-
-  setLocalStatus('Memverifikasi akun...');
-  const active = await verifyActiveUser();
-  if (!active) { setLocalStatus(''); return; }
-  setLocalStatus('Memproses...');
-
-  const repl = getReplacements();
-  const btn  = document.getElementById('btnProcess');
-  const prog = document.getElementById('localProgress');
-  const bar  = document.getElementById('localProgressBar');
-  btn.disabled = true;
-  prog.classList.add('show');
-  bar.style.width = '0%';
-  log(`\n=== Proses ZIP lokal (mail merge) ===`);
-
-  const entries = [];
-  loadedZip.forEach((path, entry) => {
-    if (!entry.dir && /\.(docx|xlsx)$/i.test(path)) entries.push({ path, entry });
-  });
-  const outZip = new JSZip();
-  const usedNames = new Set();
-  let sukses = 0, gagal = 0;
-
-  for (let i = 0; i < entries.length; i++) {
-    const { path, entry } = entries[i];
-    log(`[${i+1}/${entries.length}] ${path}`);
-    try {
-      const buf = await entry.async('arraybuffer');
-      const lower = path.toLowerCase();
-      let blob;
-      if (lower.endsWith('.xlsx')) {
-        try {
-          blob = await editXlsxArrayBuffer(buf, repl);
-        } catch (err) {
-          log(`   ⚠ XLSX gagal diproses, pakai asli: ${err.message}`);
-          blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        }
-      } else {
-        blob = await editDocxArrayBuffer(buf, repl);
-      }
-
-      const ext = lower.endsWith('.xlsx') ? '.xlsx' : '.docx';
-      const baseName = sanitize(path.replace(/^.*\//, '').replace(/\.(docx|xlsx)$/i, '')) || 'file';
-      let finalName = baseName + ext;
-      let n = 2;
-      while (usedNames.has(finalName)) {
-        finalName = baseName + '_' + n + ext;
-        n++;
-      }
-      usedNames.add(finalName);
-      outZip.file(finalName, blob);
-      sukses++;
-    } catch (e) {
-      log(`   ❌ ${e.message}`);
-      gagal++;
-    }
-    bar.style.width = Math.round(((i+1)/entries.length)*100) + '%';
-  }
-
-  if (sukses === 0) {
-    alert('Semua file gagal diproses.');
-    btn.disabled = false;
-    setLocalStatus('');
-    setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-    return;
-  }
-
-  log(`\n📦 Membungkus ${sukses} file...`);
-  const outBlob = await outZip.generateAsync({
-    type: 'blob',
-    compression: 'DEFLATE',
-    compressionOptions: { level: 6 }
-  });
-  const guru = sanitize(repl['[NamaGuru]'] || 'Guru');
-  const stamp = new Date().toISOString().slice(0, 10);
-  const outName = `ADM-Guru-${guru}-${stamp}.zip`;
-  downloadBlob(outBlob, outName);
-  log(`✅ Selesai! Sukses: ${sukses}, Gagal: ${gagal}. File: ${outName}`);
-  btn.disabled = false;
-  setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 500);
-  setLocalStatus(`${sukses} file diproses`);
-}
-
-document.getElementById('btnProcess').addEventListener('click', handleProcess);
-document.getElementById('btnClear').addEventListener('click', () => {
-  loadedZip = null; loadedZipName = '';
-  document.getElementById('zipInfo').style.display = 'none';
-  document.getElementById('zipFileList').innerHTML = '';
-  document.getElementById('fileZip').value = '';
-  setLocalStatus('');
-  log('ZIP dibersihkan.');
-});
-
-/* ============================================================
-   MANAJEMEN USER (ADMIN)
-   ============================================================ */
-async function loadAndRenderUsers() {
-  if (!session || String(session.JenisUser).toLowerCase() !== 'admin') return;
-  const tbody = document.getElementById('usersTbody');
-  tbody.innerHTML = '<tr><td colspan="10" class="empty">Memuat...</td></tr>';
-  try {
-    const json = await apiPost({ action: 'listUsers', adminId: session.ID });
-    const users = json.data || [];
-    renderUsers(users);
-    updatePendingBadge(users);
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty">❌ ${esc(e.message)}</td></tr>`;
-    log('❌ Gagal load users: ' + e.message);
-  }
-}
-
-function updatePendingBadge(users) {
-  const badge = document.getElementById('pendingBadge');
-  if (!badge) return;
-  const n = (users || []).filter(u => String(u.Status).toLowerCase() === 'pending').length;
-  if (n > 0) { badge.textContent = n; badge.style.display = ''; }
-  else badge.style.display = 'none';
-}
-
-async function refreshPendingBadge() {
-  if (!session || String(session.JenisUser).toLowerCase() !== 'admin') return;
-  try {
-    const json = await apiPost({ action: 'listUsers', adminId: session.ID });
-    updatePendingBadge(json.data || []);
-  } catch (e) { /* silent */ }
-}
-
-function renderUsers(users) {
-  const tbody = document.getElementById('usersTbody');
-  if (!users.length) {
-    tbody.innerHTML = '<tr><td colspan="10" class="empty">Tidak ada user.</td></tr>';
-    return;
-  }
-  const order = { 'pending': 0, 'aktif': 1, 'tidak aktif': 2 };
-  users.sort((a, b) => {
-    const sa = order[String(a.Status).toLowerCase()] ?? 9;
-    const sb = order[String(b.Status).toLowerCase()] ?? 9;
-    return sa - sb;
-  });
-
-  const myId = String(session.ID);
-  const today = new Date().toISOString().slice(0, 10);
-
-  tbody.innerHTML = users.map(u => {
-    const status = String(u.Status).toLowerCase();
-    const isSelf = String(u.ID) === myId;
-    const isAdmin = String(u.JenisUser).toLowerCase() === 'admin';
-    const statusClass = status === 'pending' ? 'pending'
-      : status === 'aktif' ? 'aktif' : 'nonaktif';
-
-    // Kuota hari ini
-    const usage = (u.TanggalUnduh === today) ? (Number(u.UnduhHariIni) || 0) : 0;
-    const usageBadge = usage > 0
-      ? `<span class="badge" style="background:#fff3e0;color:#e65100;">${usage} file</span>`
-      : '<span style="color:#9aa9b9;">—</span>';
-
-    let actions = '';
-    if (isSelf) {
-      actions = '<button class="secondary small" disabled><i class="fas fa-lock"></i> Anda</button>';
-    } else if (status === 'pending') {
-      actions = `
-        <button class="green small" data-toggle="${esc(u.ID)}" data-status="aktif"><i class="fas fa-check"></i> Terima</button>
-        <button class="danger small" data-toggle="${esc(u.ID)}" data-status="tidak aktif"><i class="fas fa-times"></i> Tolak</button>
-      `;
-    } else if (status === 'aktif') {
-      actions = `<button class="danger small" data-toggle="${esc(u.ID)}" data-status="tidak aktif"><i class="fas fa-user-slash"></i> Nonaktifkan</button>`;
-    } else {
-      actions = `<button class="green small" data-toggle="${esc(u.ID)}" data-status="aktif"><i class="fas fa-user-check"></i> Aktifkan</button>`;
-    }
-
-    return `<tr>
-      <td><span class="badge">${esc(u.ID)}</span></td>
-      <td><b>${esc(u.Username)}</b>${isSelf ? ' <small style="color:#4fc3f7;">(Anda)</small>' : ''}</td>
-      <td><span class="badge role-${isAdmin ? 'admin' : 'pelanggan'}">${esc(u.JenisUser)}</span></td>
-      <td>${esc(u.UnitKerja || '—')}</td>
-      <td>${esc(u.JenisGuru || '—')}</td>
-      <td>${esc(u.Pelajaran || '—')}</td>
-      <td>${esc(u.Kelas || '—')}</td>
-      <td>${usageBadge}</td>
-      <td><span class="badge status-${statusClass}">${esc(u.Status)}</span></td>
-      <td style="white-space:nowrap;">${actions}</td>
-    </tr>`;
-  }).join('');
-
-  tbody.querySelectorAll('[data-toggle]').forEach(btn => {
-    btn.addEventListener('click', () => toggleUserStatus(btn.dataset.toggle, btn.dataset.status, btn));
-  });
-}
-
-async function toggleUserStatus(id, status, btn) {
-  const label = status === 'aktif' ? 'mengaktifkan / menerima' : 'menonaktifkan / menolak';
-  if (!confirm(`Yakin ${label} user ini?`)) return;
-  btn.disabled = true;
-  const original = btn.innerHTML;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  try {
-    await apiPost({ action: 'setUserStatus', adminId: session.ID, id, status });
-    log(`✓ User ${id} → ${status}`);
-    await loadAndRenderUsers();
-  } catch (e) {
-    alert('Gagal: ' + e.message);
-    log('❌ Gagal ubah status: ' + e.message);
-    btn.disabled = false;
-    btn.innerHTML = original;
-  }
-}
-
-document.getElementById('btnRefreshUsers').addEventListener('click', loadAndRenderUsers);
-
-/* ============================================================
-   MODAL TAMBAH USER
-   ============================================================ */
-const userModal = document.getElementById('userModal');
-document.getElementById('btnAddUser').addEventListener('click', () => userModal.classList.add('show'));
-document.getElementById('btnCancelAddUser').addEventListener('click', () => userModal.classList.remove('show'));
-document.getElementById('btnSaveUser').addEventListener('click', async () => {
-  const payload = {
-    action: 'saveUser',
-    adminId: session.ID,
-    username: document.getElementById('newUsername').value.trim(),
-    password: document.getElementById('newPassword').value,
-    jenisUser: document.getElementById('newJenisUser').value,
-    unitKerja: document.getElementById('newUnitKerja').value.trim(),
-    jenisGuru: document.getElementById('newJenisGuru').value,
-    pelajaran: document.getElementById('newPelajaran').value,
-    kelas: document.getElementById('newKelas').value
-  };
-  if (!payload.username || !payload.password) { alert('Username dan password wajib diisi.'); return; }
-  const btn = document.getElementById('btnSaveUser');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-  try {
-    await apiPost(payload);
-    userModal.classList.remove('show');
-    ['newUsername','newPassword','newUnitKerja'].forEach(id => document.getElementById(id).value = '');
-    log('✓ User baru ditambahkan: ' + payload.username);
-    await loadAndRenderUsers();
-  } catch (e) {
-    alert('Gagal: ' + e.message);
-    log('❌ Gagal tambah user: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-save"></i> Simpan';
-  }
-});
-
-/* ============================================================
-   IMPORT DRIVE — konfigurasi
-   ============================================================ */
-async function loadDriveConfig() {
-  if (!session) return;
-  try {
-    const json = await apiPost({ action: 'getDriveConfig', adminId: session.ID });
-    document.getElementById('driveUrl').value = json.url || '';
-  } catch (e) {
-    log('⚠ Gagal muat konfigurasi Drive: ' + e.message);
-  }
-}
-
-document.getElementById('btnSaveDriveUrl')?.addEventListener('click', async () => {
-  const url = document.getElementById('driveUrl').value.trim();
-  try {
-    await apiPost({ action: 'saveDriveConfig', adminId: session.ID, url });
-    log(`✓ URL folder Drive disimpan oleh ${session.Username}`);
-    alert(url ? '✅ URL folder disimpan.' : '✅ URL dikosongkan — kembali ke default.');
-  } catch (e) {
-    alert('Gagal: ' + e.message);
-    log('❌ Simpan URL gagal: ' + e.message);
-  }
-});
-
-/* ============================================================
-   IMPORT DRIVE — scan & preview
-   ============================================================ */
-document.getElementById('btnScanDrive')?.addEventListener('click', async () => {
-  const btn = document.getElementById('btnScanDrive');
-  const info = document.getElementById('drivePreviewInfo');
-  const wrap = document.getElementById('drivePreviewWrap');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
-  info.innerHTML = '⏳ Membaca folder Drive... (10–30 detik untuk ~500 file)';
-  wrap.style.display = 'none';
-  document.getElementById('btnApplyDrive').disabled = true;
-  try {
-    const json = await apiPost({ action: 'scanDrive', adminId: session.ID });
-    drivePreviewData = json.data || [];
-    renderDrivePreview(drivePreviewData);
-    document.getElementById('btnApplyDrive').disabled = drivePreviewData.length === 0;
-    log(`✓ Scan selesai: ${drivePreviewData.length} file`);
-  } catch (e) {
-    info.innerHTML = '❌ ' + esc(e.message);
-    log('❌ Scan gagal: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-search"></i> Scan';
-  }
-});
-
-function renderDrivePreview(rows) {
-  const info = document.getElementById('drivePreviewInfo');
-  const wrap = document.getElementById('drivePreviewWrap');
-  if (!rows.length) {
-    info.innerHTML = '⚠ Tidak ada file ditemukan. Cek struktur folder: Kelas 1–6, berisi .docx/.xlsx.';
-    wrap.style.display = 'none';
-    return;
-  }
-  const byKelas = {}, bySem = {};
-  let nDocx = 0, nXlsx = 0;
-  rows.forEach(r => {
-    byKelas[r.kelas] = (byKelas[r.kelas] || 0) + 1;
-    bySem[r.semester] = (bySem[r.semester] || 0) + 1;
-    if (/\.xlsx$/i.test(r.nama_adm)) nXlsx++; else nDocx++;
-  });
-  const sumKelas = Object.keys(byKelas).sort().map(k => `K${k}: ${byKelas[k]}`).join(' · ');
-  const sumSem = Object.keys(bySem).sort().map(k => k === '-' ? `Tanpa Semester: ${bySem[k]}` : `S${k}: ${bySem[k]}`).join(' · ');
-  info.innerHTML = `
-    ✅ <b>${rows.length} file ditemukan</b> (DOCX: ${nDocx}, XLSX: ${nXlsx})<br>
-    <small style="color:#4a5a6e;">Per Kelas: ${sumKelas}</small><br>
-    <small style="color:#4a5a6e;">Per Semester: ${sumSem}</small>
-  `;
-  wrap.style.display = 'block';
-  const tbody = document.getElementById('drivePreviewTbody');
-  const maxPreview = 200;
-  const shown = rows.slice(0, maxPreview);
-  tbody.innerHTML = shown.map((r, i) => {
-    const isX = /\.xlsx$/i.test(r.nama_adm);
-    return `<tr>
-      <td>${i + 1}</td>
-      <td>${esc(r.nama_adm)}</td>
-      <td>${esc(r.kelas)}</td>
-      <td>${r.semester === '-' ? '—' : 'S' + esc(r.semester)}</td>
-      <td>${esc(r.mapel)}</td>
-      <td><span class="badge type-${isX ? 'xlsx' : 'docx'}">${isX ? 'XLSX' : 'DOCX'}</span></td>
-    </tr>`;
-  }).join('') + (rows.length > maxPreview
-    ? `<tr><td colspan="6" class="empty">... dan ${rows.length - maxPreview} file lainnya</td></tr>` : '');
-}
-
-document.getElementById('btnApplyDrive')?.addEventListener('click', async () => {
-  if (!drivePreviewData || !drivePreviewData.length) return;
-  if (!confirm(`Yakin? ${drivePreviewData.length} file akan ditulis ke sheet "data".\nSemua baris lama akan dihapus.`)) return;
-  const btn = document.getElementById('btnApplyDrive');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menerapkan...';
-  try {
-    const json = await apiPost({ action: 'applyDrive', adminId: session.ID });
-    alert(`✅ Selesai! ${json.total} file ditulis ke sheet "data".`);
-    log(`✓ Apply selesai: ${json.total} baris oleh ${session.Username}`);
-    drivePreviewData = null;
-    listData = await fetchList();
-    refreshFilters();
-    selectedIds.clear();
-    listData.forEach(r => selectedIds.add(String(r.id_adm)));
-    renderTable();
-    setStatus(`${listData.length} RPP tersedia`);
-  } catch (e) {
-    alert('Gagal: ' + e.message);
-    log('❌ Apply gagal: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-check"></i> Terapkan ke Sheet';
-  }
-});
-
-/* ============================================================
-   LOG UNDUHAN (ADMIN)
-   ============================================================ */
-async function loadLogUnduh() {
-  if (!session || String(session.JenisUser).toLowerCase() !== 'admin') return;
-  const limit = Number(document.getElementById('logUnduhLimit').value) || 100;
-  const tbody = document.getElementById('logUnduhTbody');
-  tbody.innerHTML = '<tr><td colspan="6" class="empty">Memuat...</td></tr>';
-  try {
-    const json = await apiPost({
-      action: 'getLogUnduh',
-      adminId: session.ID,
-      limit: limit
-    });
-    const rows = json.data || [];
-    const stats = json.stats || {};
-    renderLogUnduh(rows, stats);
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">❌ ${esc(e.message)}</td></tr>`;
-    log('❌ Gagal load log unduh: ' + e.message);
-  }
-}
-
-function renderLogUnduh(rows, stats) {
-  // Statistik
-  document.getElementById('logSumToday').textContent     = stats.todayFiles      ?? 0;
-  document.getElementById('logSumRejected').textContent  = stats.todayRejected   ?? 0;
-  document.getElementById('logSumRemaining').textContent = stats.globalRemaining ?? 0;
-
-  const tbody = document.getElementById('logUnduhTbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">Belum ada riwayat unduhan.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = rows.map(r => {
-    const status = String(r.status || '').toLowerCase();
-    let statusBadge;
-    if (status === 'sukses')         statusBadge = '<span class="badge status-aktif">Sukses</span>';
-    else if (status === 'ditolak_limit') statusBadge = '<span class="badge status-nonaktif">Ditolak</span>';
-    else if (status === 'gagal')     statusBadge = '<span class="badge status-pending">Gagal</span>';
-    else                              statusBadge = `<span class="badge">${esc(r.status)}</span>`;
-
-    return `<tr>
-      <td style="font-size:11px;">${esc(r.timestamp || '')}</td>
-      <td><b>${esc(r.username || '—')}</b><br><small style="color:#7a8a9e;">${esc(r.userId || '')}</small></td>
-      <td><b>${esc(r.jumlahFile || 0)}</b></td>
-      <td>${esc(r.batchCount || 0)}</td>
-      <td>${statusBadge}</td>
-      <td style="font-size:12px; color:#4a5a6e;">${esc(r.keterangan || '')}</td>
-    </tr>`;
-  }).join('');
-}
-
-document.getElementById('btnRefreshLogUnduh')?.addEventListener('click', loadLogUnduh);
-document.getElementById('logUnduhLimit')?.addEventListener('change', loadLogUnduh);
-
-/* ============================================================
-   INIT / BOOT
-   ============================================================ */
-async function startApp() {
-  try {
-    listData = await fetchList();
-    refreshFilters();
-    listData.forEach(r => selectedIds.add(String(r.id_adm)));
-    renderTable();
-    setStatus(`${listData.length} RPP tersedia`);
-    log(`✓ ${listData.length} baris dimuat.`);
-  } catch (e) {
-    setStatus('Gagal memuat');
-    log('❌ ' + e.message);
-    document.getElementById('tbody').innerHTML =
-      '<tr><td colspan="7" class="empty">Gagal memuat. Klik "Sinkron Data".</td></tr>';
-  }
-  if (session && String(session.JenisUser).toLowerCase() === 'admin') {
-    refreshPendingBadge();
-  }
-  fetchQuotaInfo();
-}
-
-async function boot() {
-  const saved = loadSession();
-  if (saved && String(saved.Status || '').toLowerCase() === 'aktif') {
-    applySession();
-    hideLogin();
-    startApp();
-  } else {
-    clearSession();
-    showLogin();
-  }
-}
-
-/* ============================================================
-   EVENT BINDINGS TAMBAHAN
-   ============================================================ */
-document.getElementById('btnSync').addEventListener('click', async () => {
-  try {
-    listData = await fetchList();
-    refreshFilters();
-    selectedIds.clear();
-    listData.forEach(r => selectedIds.add(String(r.id_adm)));
-    renderTable();
-    setStatus(`${listData.length} RPP tersedia`);
-    log(`✓ Sinkron: ${listData.length} baris`);
-  } catch (e) { log('❌ ' + e.message); }
-});
-
-document.getElementById('btnAll').addEventListener('click', () => {
-  selectedIds.clear();
-  getFilteredRows().forEach(r => selectedIds.add(String(r.id_adm)));
-  renderTable();
-});
-
-document.getElementById('btnNone').addEventListener('click', () => {
-  selectedIds.clear();
-  renderTable();
-});
-
-document.getElementById('checkAll').addEventListener('change', e => {
-  getFilteredRows().forEach(r => {
-    if (e.target.checked) selectedIds.add(String(r.id_adm));
-    else selectedIds.delete(String(r.id_adm));
-  });
-  renderTable();
-});
-
-document.getElementById('btnDownloadZip').addEventListener('click', handleDownloadZip);
-
-['filterKelas','filterSemester','filterMapel'].forEach(id =>
-  document.getElementById(id).addEventListener('change', () => {
-    // Reset pilihan ke baris yang sedang tampil
-    selectedIds.clear();
-    getFilteredRows().forEach(r => selectedIds.add(String(r.id_adm)));
-    renderTable();
-  })
-);
-
-document.getElementById('btnClearLog').addEventListener('click', () => {
-  logEl.textContent = 'Log dibersihkan.';
-  log('Log dibersihkan.');
-});
-
-/* ============================================================
-   BOOT
-   ============================================================ */
-boot();
-</script>
+<script src="js/script.js"></script>
 </body>
 </html>
